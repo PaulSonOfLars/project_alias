@@ -64,7 +64,7 @@ def create_model():
 
 
 # add examples to training dataset
-def addExample(sample, label):
+def add_example(sample, label):
     global TRAINING_DATA, TRAINING_LABELS
     encoded_y = keras.utils.np_utils.to_categorical(label, num_classes=NUM_CLASSES)  # make one-hot
     encoded_y = np.reshape(encoded_y, (1, 2))

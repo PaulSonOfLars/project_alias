@@ -31,14 +31,14 @@ def test_message(message):
     # Add example to class 0 - Silence / background noise
     if 'class0' in msg and globals.EXAMPLE_READY:
         example = sound.get_spectrogram()
-        ai.addExample(example, 0)
+        ai.add_example(example, 0)
         globals.BG_EXAMPLES += 1
         led.LED.listen()
 
     # Add example to class 1 - WakeWord
     elif 'class1' in msg and globals.EXAMPLE_READY and not globals.UPDATE_BG_DATA:
         example = sound.get_spectrogram()
-        ai.addExample(example, 1)
+        ai.add_example(example, 1)
         globals.TR_EXAMPLES += 1
         led.LED.listen()
 
@@ -96,7 +96,6 @@ def main_thread():
     # ====================================================#
     try:
         while True:
-
             while stream.is_active():
                 time.sleep(0.01)
                 led.LED.off()
@@ -143,10 +142,9 @@ def main_thread():
     except (KeyboardInterrupt, SystemExit):
         exit_handler()
 
-    # Setup
-    # ====================================================#
 
-
+# Setup
+# ====================================================#
 globals.initialize()
 stream = sound.initialize()
 stream.start_stream()  # start stream
