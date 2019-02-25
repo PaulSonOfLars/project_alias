@@ -1,5 +1,7 @@
 from modules import apa102
+
 global LED
+
 
 class Pixels:
     PIXELS_N = 3
@@ -9,17 +11,18 @@ class Pixels:
 
     def on(self):
         for i in range(self.PIXELS_N):
-            self.dev.set_pixel(i, 0, 0, 200,50)
+            self.dev.set_pixel(i, 0, 0, 200, 50)
         self.dev.show()
 
     def listen(self):
         for i in range(self.PIXELS_N):
-            self.dev.set_pixel(i, 200, 200, 0,50)
+            self.dev.set_pixel(i, 200, 200, 0, 50)
         self.dev.show()
 
     def off(self):
         for i in range(self.PIXELS_N):
             self.dev.set_pixel(i, 0, 0, 0)
         self.dev.show()
+
 
 LED = Pixels()

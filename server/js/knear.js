@@ -1,20 +1,20 @@
-var knear = function(k) {
+var knear = function (k) {
     //PRIVATE
     var training = [];
 
     //compute the euclidean distance between two vectors
     //function assumes vectors are arrays of equal length
-    var dist = function(v1, v2) {
+    var dist = function (v1, v2) {
         var sum = 0;
-        v1.forEach(function(val, index) {
+        v1.forEach(function (val, index) {
             sum += Math.pow(val - v2[index], 2);
         });
         return Math.sqrt(sum);
     };
 
-    var updateMax = function(val, arr) {
+    var updateMax = function (val, arr) {
         var max = 0;
-        arr.forEach(function(obj) {
+        arr.forEach(function (obj) {
             max = Math.max(max, obj.d);
         });
         return max;
@@ -35,20 +35,19 @@ var knear = function(k) {
     }
 
 
-
     //PUBLIC
 
     //add a point to the training set
-    this.learn = function(vector, label) {
-        var obj = { v: vector, lab: label };
+    this.learn = function (vector, label) {
+        var obj = {v: vector, lab: label};
         training.push(obj);
     };
 
-    this.classify = function(v) {
+    this.classify = function (v) {
         var voteBloc = [];
         var maxD = 0;
-        training.forEach(function(obj) {
-            var o = { d: dist(v, obj.v), vote: obj.lab };
+        training.forEach(function (obj) {
+            var o = {d: dist(v, obj.v), vote: obj.lab};
             if (voteBloc.length < k) {
                 voteBloc.push(o);
                 maxD = updateMax(maxD, voteBloc);
@@ -74,7 +73,7 @@ var knear = function(k) {
 
         });
         var votes = [];
-        voteBloc.forEach(function(el) {
+        voteBloc.forEach(function (el) {
             votes.push(el.vote);
         });
         return mode(votes);
