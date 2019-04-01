@@ -16,22 +16,20 @@ Project Alias is an open-source parasite to train custom wake-up names for smart
 ## Build Guide
 
 
-For the complete step-by-step guide and 3D files see our [Instructables](https://www.instructables.com/id/Project-Alias).
+For the complete step-by-step guide and 3D files see the [Instructables](https://www.instructables.com/id/Project-Alias) by the original project creator, [Bjørn Karmann](https://github.com/bjoernkarmann).
 
 
 ## Raspberry Pi Setup 🔧
 
 How to prepare and setup a Raspberry Pi for this project:
 
-1. Download the latest version of [Raspbian](https://www.raspberrypi.org/downloads/raspbian/) and flash your micro SD card with [Etcher](https://etcher.io/)
+1. Download the latest version of [Raspbian](https://www.raspberrypi.org/downloads/raspbian/) and flash your micro SD card with [Etcher](https://etcher.io/), `dd`, or whichever preferred tool.
 
-2. Copy the **ssh** and **wpa_supplicant.conf** files from the [setup folder](setup/) to the SD card (boot) 
+2. Copy the `ssh` and `wpa_supplicant.conf` files from the [setup folder](setup/) to the SD card's boot partition.
 
+3. Edit the `wpa_supplicant.conf` in a text editor to match your wifi settings. Insert the card to the raspberry pi.
 
-3. Edit the **wpa_supplicant.conf** in a text editor to match your wifi settings. Insert the card to the raspberry pi
-
-
-4. In terminal ssh into the pi: ```sudo ssh pi@raspberrypi.local```<br>*Default password is 'raspberry'. To change password use the 'passwd' command*
+4. In a terminal, ssh into the pi: ```sudo ssh pi@<IP address>```<br>*Default password is 'raspberry'. To change password use the 'passwd' command*
 
 5. Update the pi: ```sudo apt-get update && sudo apt-get upgrade```<br>
 
@@ -41,7 +39,7 @@ How to prepare and setup a Raspberry Pi for this project:
 ## Installing 
 
 
-On the Rapsberry Pi: clone and install the sound driver for the [ReSpeaker](http://wiki.seeedstudio.com/ReSpeaker_2_Mics_Pi_HAT/) hat:<br>
+On the Raspberry Pi: clone and install the sound driver for the [ReSpeaker](http://wiki.seeedstudio.com/ReSpeaker_2_Mics_Pi_HAT/) hat:<br>
 *This is only required when using the ReSpeaker hat, this code will also work with other sound drivers.*
 
 ```
@@ -49,14 +47,15 @@ cd && git clone https://github.com/respeaker/seeed-voicecard.git
 cd seeed-voicecard && sudo ./install.sh
 ```
 
-Install **Tensorflow** and **Keras**:
+Install required **packages**:
 
 ```
 sudo apt-get install python3-dev python3-pip git libatlas-base-dev 
 sudo pip3 install tensorflow keras 
 ```
 
-Install the required modules: 
+Install the required python modules (install them as packages, as pip3 will run out of memory on a pi 3A+):
+
 
 ```
 sudo apt-get install python3-numpy python3-spidev python-h5py
@@ -67,7 +66,7 @@ sudo pip3 install flask flask_socketio python_speech_features
 Clone the **Alias** project: 
 
 ```
-git clone https://github.com/bjoernkarmann/project_alias.git
+git clone https://github.com/PaulSonOfLars/project_alias.git
 ```
 
 Setup a bootscript. Open this file:
@@ -75,7 +74,8 @@ Setup a bootscript. Open this file:
 ```
 sudo nano /etc/rc.local
 ```
- and add at the end of the command just before **exit 0**, like:
+
+and add at the end of the command just before **exit 0**, like:
   
 ```
 cd project_alias && python3 app.py &
@@ -85,8 +85,8 @@ Now reboot the Pi to test it:
 ```
 sudo reboot
 ```
-## Training Alias 🍄
 
+## Training Alias 🍄
 
 
 1. To train Alias use the browser on your phone and open ```raspberrypi.local:5050```
@@ -106,11 +106,18 @@ Note: once trained there is no need to have the phone connected anymore.
 
 - To set the volume of the speaker you can change the line 32 in **modules/sound.py** ```os.system('sudo amixer -c 1 sset Speaker 83')``` 
 
+## TODO:
+
+- add a config file for calibration
+- remove requirement to use sudo -> run as own user
+- remove requirement for rc.local script -> use systemd
+
 ## Get Involved!
 We are both Interaction Designers, Makers and strong believers in privacy but no experts when it comes to Speech Recognition software. If you are interested in getting involved in version 2.0 please let us know!
 
 ## Contributors
-Made by [Bjørn Karmann](http://bjoernkarmann.dk) and [Tore Knudsen](http://www.toreknudsen.dk/). 
+Made by [Bjørn Karmann](http://bjoernkarmann.dk) and [Tore Knudsen](http://www.toreknudsen.dk/).
+Extended by [Paul Larsen](https://pnvlarsen.me).
 
 
 ## License
