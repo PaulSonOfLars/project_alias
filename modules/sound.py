@@ -30,6 +30,8 @@ q = Queue()
 
 
 def initialize():
+    # TODO: Check if it _has_ to be sudo
+    # IF yes, can we add user to audio group?
     os.system('sudo amixer -c 1 sset Speaker 83')
     return pyaudio.PyAudio().open(format=FORMAT,
                                   channels=CHANNELS,
@@ -80,12 +82,12 @@ def get_spectrogram():
 # Audio player class
 # ====================================================#
 class AudioPlayer:
-    def __init__(self, filepath, loop, name, canPlay):
+    def __init__(self, filepath, loop, name, can_play):
         super(AudioPlayer, self).__init__()
         self.filepath = os.path.abspath(filepath)
         self.loop = loop
         self.name = name
-        self.canPlay = canPlay
+        self.canPlay = can_play
         self.player = pygame.mixer.Sound(file=self.filepath)
 
     def check_if_playing(self):
