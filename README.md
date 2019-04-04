@@ -47,20 +47,25 @@ cd && git clone https://github.com/respeaker/seeed-voicecard.git
 cd seeed-voicecard && sudo ./install.sh
 ```
 
-Install required **packages**:
+Install required **packages** (python modules are installed as packages, as pip3 may run out of memory on a pi 3A+):
 
 ```
-sudo apt-get install python3-dev python3-pip git libatlas-base-dev 
-sudo pip3 install tensorflow keras 
+sudo apt-get install python3-dev python3-pip git libatlas-base-dev
+sudo apt-get install python3-numpy python3-spidev python-h5py python3-pyaudio libsdl-ttf2.0-0 python3-pygame
 ```
 
-Install the required python modules (install them as packages, as pip3 will run out of memory on a pi 3A+):
+Install the required python modules:
 
 
 ```
-sudo apt-get install python3-numpy python3-spidev python-h5py
-sudo apt-get install python3-pyaudio libsdl-ttf2.0-0 python3-pygame 
+sudo pip3 install tensorflow keras
 sudo pip3 install flask flask_socketio python_speech_features
+```
+
+**Note**: If installing tensorflow via pip causes issues, install it by downloading the tensorflow`.whl` file and running
+
+```
+sudo pip3 install <path to tensorflow .whl>
 ```
 
 Clone the **Alias** project: 
