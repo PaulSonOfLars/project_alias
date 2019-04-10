@@ -5,9 +5,8 @@ This is the main driver module for APA102 LEDs
 License: GPL V2
 """
 
-from math import ceil
-
 import spidev
+from math import ceil
 
 RGB_MAP = {'rgb': [3, 2, 1], 'rbg': [3, 1, 2], 'grb': [2, 3, 1],
            'gbr': [2, 1, 3], 'brg': [1, 3, 2], 'bgr': [1, 2, 3]}

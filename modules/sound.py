@@ -7,7 +7,7 @@ import pygame.mixer
 from python_speech_features import mfcc, sigproc
 
 from config import Config
-from modules import connection, globals, led
+from modules import connection, globals
 
 pygame.mixer.init()
 
@@ -81,18 +81,19 @@ def get_spectrogram():
 # Audio player class
 # ====================================================#
 class AudioPlayer:
-    def __init__(self, filepath, loop, name, can_play):
+    def __init__(self, filepath, loop, name, can_play, LED):
         super(AudioPlayer, self).__init__()
         self.filepath = os.path.abspath(filepath)
         self.loop = loop
         self.name = name
         self.canPlay = can_play
         self.player = pygame.mixer.Sound(file=self.filepath)
+        self.LED = LED
 
     def check_if_playing(self):
         while pygame.mixer.get_busy():
             pass
-        led.LED.on()
+        self.LED.on()
 
     def play(self):
         print("playing " + self.name)

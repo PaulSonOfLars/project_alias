@@ -10,3 +10,7 @@ class Config:
     BATCH_SIZE = 8
     DENSE_UNITS = 128
     LOAD_MODEL = True
+
+    # server stuff
+    PORT = 5050
+    HOST = '0.0.0.0'

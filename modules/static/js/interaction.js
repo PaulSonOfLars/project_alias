@@ -16,14 +16,14 @@ $(document).ready(function () {
         if (!triggered) {
             recordBtn = true;
             timeOut = setInterval(function () {
-                socket.emit('msgEvent', {data: class_to_train});
+                socket.emit('msg_event', {data: class_to_train});
             }, 100);
             e.preventDefault(); //prevent native mobile action
         }
     });
 
     $("#canvas-wrapper").on('mouseup touchend', function (e) {
-        socket.emit('msgEvent', {data: "btn_release"});
+        socket.emit('msg_event', {data: "btn_release"});
         clearInterval(timeOut)
         recordBtn = false;
         e.preventDefault(); //prevent native mobile action
@@ -31,20 +31,20 @@ $(document).ready(function () {
 
     //train btn
     $("#train").on('click', function () {
-        if (!resetState && !triggered) socket.emit('msgEvent', {data: "train"});
+        if (!resetState && !triggered) socket.emit('msg_event', {data: "train"});
         stopBtnPress();
     })
 
     //Reset btn
     $("#reset").mousedown(function () {
-        if (!trainState && !triggered) socket.emit('msgEvent', {data: "reset"});
+        if (!trainState && !triggered) socket.emit('msg_event', {data: "reset"});
         stopBtnPress();
     })
 
     //Toggle system to be on and off 
     $("#onoff").mousedown(function () {
         stopBtnPress();
-        socket.emit('msgEvent', {data: "onoff"});
+        socket.emit('msg_event', {data: "onoff"});
         if (on_State) {
             on_State = false;
             $("#onoff").text("Turn ON");
@@ -86,7 +86,7 @@ $(document).ready(function () {
 
 //Ask server to update info
 function requestInfo() {
-    socket.emit('msgEvent', {data: "get-info"});
+    socket.emit('msg_event', {data: "get-info"});
 }
 
 function stopBtnPress() {
