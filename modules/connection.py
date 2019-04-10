@@ -54,9 +54,9 @@ def index():
 
 
 class SocketNamespace(Namespace):
-    def __init__(self, namespace, model, stream, noise, LED):
+    def __init__(self, namespace, classifier, stream, noise, LED):
         super().__init__(namespace)
-        self.model = model
+        self.classifier = classifier
         self.stream = stream
         self.noise = noise
         self.LED = LED
@@ -77,14 +77,14 @@ class SocketNamespace(Namespace):
         # Add example to class 0 - Silence / background noise
         if 'class0' in msg and globals.EXAMPLE_READY:
             example = sound.get_spectrogram()
-            self.model.add_example(example, 0)
+            self.classifier.add_example(example, 0)
             globals.BG_EXAMPLES += 1
             self.LED.listen()
 
         # Add example to class 1 - WakeWord
         elif 'class1' in msg and globals.EXAMPLE_READY and not globals.UPDATE_BG_DATA:
             example = sound.get_spectrogram()
-            self.model.add_example(example, 1)
+            self.classifier.add_example(example, 1)
             globals.TR_EXAMPLES += 1
             self.LED.listen()
 
@@ -96,7 +96,7 @@ class SocketNamespace(Namespace):
         elif 'reset' in msg:
             globals.RESET = True
             send_response()  # tell client that we are reseting
-            self.model.reset_model()
+            self.classifier.reset_model()
             globals.RESET = False
             globals.TR_EXAMPLES = 0
 

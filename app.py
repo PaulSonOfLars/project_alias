@@ -50,7 +50,7 @@ def main_thread():
                     print("get spectogram")
                     print(globals.EXAMPLE_READY)
                     if globals.HAS_BEEN_TRAINED:  # if model has been trained then predict
-                        globals.RESULT = model.predict(sample).item()
+                        globals.RESULT = classifier.predict(sample).item()
                         print("GLOBAL RESULT: %d" % globals.RESULT)
 
                     if globals.RESULT == 1:
@@ -62,7 +62,7 @@ def main_thread():
                         connection.send_response()
 
                 elif globals.TRAIN:
-                    model.train_model()
+                    classifier.train_model()
                     globals.PREDICT = True
                     globals.TRAIN = False
                     connection.send_response()  # tell client that we are done training
@@ -88,7 +88,7 @@ def main_thread():
 globals.initialize()
 audio, stream = sound.initialize()
 stream.start_stream()  # start stream
-model = ai.Classifier()  # setup keras model
+classifier = ai.Classifier()  # setup keras model
 
 # Setup and start main thread
 thread = Thread(target=main_thread)
@@ -103,7 +103,7 @@ print('')
 
 # Start socket io
 if __name__ == '__main__':
-    connection.socketio.on_namespace(connection.SocketNamespace("/socket", model, stream, audio, LED))
+    connection.socketio.on_namespace(connection.SocketNamespace("/socket", classifier, stream, audio, LED))
     connection.socketio.run(connection.app, host=Config.HOST, port=Config.PORT, debug=False, log_output=False)
 
 
