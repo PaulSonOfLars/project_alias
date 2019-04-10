@@ -4,17 +4,11 @@ import time
 from threading import Thread
 
 from config import Config
-from modules import ai, connection, globals, led, sound
-
-# Global inits
-# ====================================================
-# init and setup RPI LEDs
-LED = led.Pixels()
-LED.off()
+from modules import ai, audio, connection, globals, led
 
 
 # Main thread
-def main_thread(sound: sound.Sound):
+def main_thread(sound: audio.Sound):
     sound.start()  # Start noise
     connection.send_response()  # Send system info to client
 
@@ -72,33 +66,34 @@ def main_thread(sound: sound.Sound):
         exit_handler()
 
 
-# Setup
-# ====================================================#
-globals.initialize()
-sound = sound.Sound(LED)
-
-classifier = ai.Classifier()  # setup keras model
-
-# Setup and start main thread
-thread = Thread(target=lambda: main_thread(sound))
-thread.daemon = True
-thread.start()
-
-print('')
-print("============================================")
-print("SERVER RUNNING ON: http://" + str(Config.HOST) + ":" + str(Config.PORT))
-print("============================================")
-print('')
-
-# Start socket io
-if __name__ == '__main__':
-    connection.socketio.on_namespace(connection.SocketNamespace("/socket", classifier, sound, LED))
-    connection.socketio.run(connection.app, host=Config.HOST, port=Config.PORT, debug=False, log_output=False)
-
-
 def exit_handler():
     LED.off()
     sound.off()
 
 
-atexit.register(exit_handler)
+if __name__ == '__main__':
+    # Setup, inits
+    # ====================================================#
+    # init and setup RPI LEDs
+    LED = led.Pixels()
+    LED.off()
+    globals.initialize()
+    sound = audio.Sound(LED)
+
+    classifier = ai.Classifier()  # setup keras model
+
+    # Setup and start main thread
+    thread = Thread(target=lambda: main_thread(sound))
+    thread.daemon = True
+    thread.start()
+
+    print('')
+    print("============================================")
+    print("SERVER RUNNING ON: http://" + str(Config.HOST) + ":" + str(Config.PORT))
+    print("============================================")
+    print('')
+
+    # Start socket io
+    connection.socketio.on_namespace(connection.SocketNamespace("/socket", classifier, sound, LED))
+    connection.socketio.run(connection.app, host=Config.HOST, port=Config.PORT, debug=False, log_output=False)
+    atexit.register(exit_handler)

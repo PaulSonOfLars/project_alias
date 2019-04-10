@@ -5,7 +5,7 @@ from threading import Thread
 from flask import Flask, render_template
 from flask_socketio import Namespace, SocketIO
 
-from modules import globals, sound
+from modules import globals
 
 # Socket I/O
 # ====================================================#
@@ -54,10 +54,10 @@ def index():
 
 
 class SocketNamespace(Namespace):
-    def __init__(self, namespace, classifier, _sound, LED):
+    def __init__(self, namespace, classifier, sound, LED):
         super().__init__(namespace)
         self.classifier = classifier
-        self.sound = _sound
+        self.sound = sound
         self.LED = LED
 
     def on_connect(self):
@@ -75,14 +75,14 @@ class SocketNamespace(Namespace):
 
         # Add example to class 0 - Silence / background noise
         if 'class0' in msg and globals.EXAMPLE_READY:
-            example = sound.get_spectrogram()
+            example = self.sound.get_spectrogram()
             self.classifier.add_example(example, 0)
             globals.BG_EXAMPLES += 1
             self.LED.listen()
 
         # Add example to class 1 - WakeWord
         elif 'class1' in msg and globals.EXAMPLE_READY and not globals.UPDATE_BG_DATA:
-            example = sound.get_spectrogram()
+            example = self.sound.get_spectrogram()
             self.classifier.add_example(example, 1)
             globals.TR_EXAMPLES += 1
             self.LED.listen()

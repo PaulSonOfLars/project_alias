@@ -17,17 +17,19 @@ RATE = 16000
 CHUNK_SAMPLES = 1024
 FEED_DURATION = 1.5  # Duration in seconds
 FEED_LENGTH = np.floor(RATE * FEED_DURATION / CHUNK_SAMPLES)
-WIN_LEN = 1 / (RATE / CHUNK_SAMPLES)  # IN SECONDS
+# WIN_LEN = 1 / (RATE / CHUNK_SAMPLES)  # IN SECONDS # unused?
 FORMAT = pyaudio.paInt16
 CHANNELS = 1
-DATA = np.zeros(CHUNK_SAMPLES, dtype='int16')
-RUNNING_SPECTOGRAM = np.empty([0, 13], dtype='int16')
+# DATA = np.zeros(CHUNK_SAMPLES, dtype='int16')  # unused?
 print(FEED_LENGTH)
 silence_threshhold = 700
 q = Queue()
 
 
 class Sound:
+    running_spectrogram = np.empty([0, 13], dtype='int16')
+    finished_spectrogram = np.empty([0, 13], dtype='int16')
+
     def __init__(self, LED):
         # TODO: Check if it _has_ to be sudo
         # IF yes, can we add user to audio group?
@@ -83,42 +85,38 @@ class Sound:
         self.stream.close()
         self.audio.terminate()
 
+    def make_spectrogram(self):
+        data = q.get()
+
+        if len(self.running_spectrogram) < FEED_LENGTH:
+            # preemphasis the signal to weight up high frequencies
+            signal = sigproc.preemphasis(data, coeff=0.95)
+            # apply mfcc on the frames
+            mfcc_feat = mfcc(signal, RATE, winlen=1 / (RATE / CHUNK_SAMPLES), nfft=CHUNK_SAMPLES * 2,
+                             winfunc=np.hamming)
+            self.running_spectrogram = np.vstack([mfcc_feat, self.running_spectrogram])
+            connection.send_spectogram(mfcc_feat, len(self.running_spectrogram))
+            print(len(self.running_spectrogram))
+        else:
+            self.finished_spectrogram = self.running_spectrogram
+            self.running_spectrogram = np.empty([0, 13], dtype='int16')
+            globals.EXAMPLE_READY = True
+            globals.MIC_TRIGGER = False
+
+    def get_spectrogram(self):
+        self.finished_spectrogram = np.expand_dims(self.finished_spectrogram, axis=0)
+        globals.EXAMPLE_READY = False
+        return self.finished_spectrogram
+
 
 # Callback on mic input
 def audio_callback(in_data, frame_count, time_info, flag):
-    global DATA
     audio_data = np.frombuffer(in_data, dtype='int16')
     if np.abs(audio_data).mean() > silence_threshhold and not globals.MIC_TRIGGER:
         globals.MIC_TRIGGER = True
     if globals.MIC_TRIGGER:
         q.put(audio_data)
     return in_data, pyaudio.paContinue
-
-
-def make_spectrogram():
-    global RUNNING_SPECTOGRAM, FINISHED_SPECTOGRAM
-    data = q.get()
-
-    if len(RUNNING_SPECTOGRAM) < FEED_LENGTH:
-        # preemphasis the signal to weight up high frequencies
-        signal = sigproc.preemphasis(data, coeff=0.95)
-        # apply mfcc on the frames
-        mfcc_feat = mfcc(signal, RATE, winlen=1 / (RATE / CHUNK_SAMPLES), nfft=CHUNK_SAMPLES * 2, winfunc=np.hamming)
-        RUNNING_SPECTOGRAM = np.vstack([mfcc_feat, RUNNING_SPECTOGRAM])
-        connection.send_spectogram(mfcc_feat, len(RUNNING_SPECTOGRAM))
-        print(len(RUNNING_SPECTOGRAM))
-    else:
-        FINISHED_SPECTOGRAM = RUNNING_SPECTOGRAM
-        RUNNING_SPECTOGRAM = np.empty([0, 13], dtype='int16')
-        globals.EXAMPLE_READY = True
-        globals.MIC_TRIGGER = False
-
-
-def get_spectrogram():
-    global FINISHED_SPECTOGRAM
-    FINISHED_SPECTOGRAM = np.expand_dims(FINISHED_SPECTOGRAM, axis=0)
-    globals.EXAMPLE_READY = False
-    return FINISHED_SPECTOGRAM
 
 
 # Audio player class
