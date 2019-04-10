@@ -59,12 +59,11 @@ class Classifier:
 
     # add examples to training dataset
     def add_example(self, sample, label):
-        global TRAINING_DATA, TRAINING_LABELS
         encoded_y = keras.utils.np_utils.to_categorical(label, num_classes=Config.NUM_CLASSES)  # make one-hot
         encoded_y = np.reshape(encoded_y, (1, 2))
-        TRAINING_LABELS = np.append(TRAINING_LABELS, encoded_y, axis=0)
+        self.training_labels = np.append(self.training_labels, encoded_y, axis=0)
         sample = sample.reshape(sample.shape[0], 1, row, col)
-        TRAINING_DATA = np.append(TRAINING_DATA, sample, axis=0)
+        self.training_data = np.append(self.training_data, sample, axis=0)
         print('add example for label %d' % label)
 
         if globals.HAS_BEEN_TRAINED:
@@ -78,8 +77,8 @@ class Classifier:
             weight_ratio = 1
         print(weight_ratio)
 
-        self.model.fit(TRAINING_DATA,
-                       TRAINING_LABELS,
+        self.model.fit(self.training_data,
+                       self.training_labels,
                        epochs=Config.EPOCHS,
                        batch_size=Config.BATCH_SIZE,
                        class_weight={0: 1, 1: weight_ratio}
@@ -93,11 +92,11 @@ class Classifier:
 
         # When true the background data set can be updated
         if globals.UPDATE_BG_DATA:
-            print(TRAINING_DATA.shape)
+            print(self.training_data.shape)
             self.model.save("data/neutral_model.h5")
             self.model.save("data/previous_model.h5")
-            np.save('data/background_sound_examples.npy', TRAINING_DATA)
-            np.save('data/background_sound_labels.npy', TRAINING_LABELS)
+            np.save('data/background_sound_examples.npy', self.training_data)
+            np.save('data/background_sound_labels.npy', self.training_labels)
 
     # Predict incoming frames
     def predict(self, sample):
