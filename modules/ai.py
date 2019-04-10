@@ -6,17 +6,12 @@ from keras.layers.convolutional import Conv2D, MaxPooling2D
 from keras.models import Sequential
 from keras.models import load_model
 
+from config import Config
 from modules import globals
 
 # Classifier settings
 # ====================================================#
-NUM_CLASSES = 2
-LEARNING_RATE = 0.0001
-EPOCHS = 10
-BATCH_SIZE = 8
-DENSE_UNITS = 128
-RESULT = None
-LOAD_MODEL = True
+
 row = 23
 col = 13
 
@@ -24,12 +19,12 @@ col = 13
 # Load or reset training examples for class 0 (background sounds)
 def load_BG_examples():
     global TRAINING_DATA, TRAINING_LABELS
-    if LOAD_MODEL:
+    if Config.LOAD_MODEL:
         TRAINING_DATA = np.load('data/background_sound_examples.npy')
         TRAINING_LABELS = np.load('data/background_sound_labels.npy')
     else:
         TRAINING_DATA = np.empty([0, 1, row, col])  # XS Example array to be trained
-        TRAINING_LABELS = np.empty([0, NUM_CLASSES])  # YS Label array
+        TRAINING_LABELS = np.empty([0, Config.NUM_CLASSES])  # YS Label array
     globals.BG_EXAMPLES = len(TRAINING_DATA)
     globals.TR_EXAMPLES = 0
     print("- loaded example shape")
@@ -40,7 +35,7 @@ def create_model():
     global model
     load_BG_examples()
 
-    if not LOAD_MODEL:
+    if not Config.LOAD_MODEL:
         model = Sequential()
         model.add(Conv2D(32, kernel_size=(3, 3), input_shape=(1, row, col), data_format='channels_first'))
         model.add(MaxPooling2D(pool_size=(2, 2)))
@@ -50,9 +45,9 @@ def create_model():
         model.add(MaxPooling2D(pool_size=(2, 2)))
         model.add(Dropout(rate=0.2))
         model.add(Flatten())
-        model.add(Dense(units=DENSE_UNITS, activation='relu'))
+        model.add(Dense(units=Config.DENSE_UNITS, activation='relu'))
         model.add(Dropout(rate=0.5))
-        model.add(Dense(units=NUM_CLASSES, activation='sigmoid'))
+        model.add(Dense(units=Config.NUM_CLASSES, activation='sigmoid'))
         model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
 
         globals.HAS_BEEN_TRAINED = False
@@ -66,7 +61,7 @@ def create_model():
 # add examples to training dataset
 def add_example(sample, label):
     global TRAINING_DATA, TRAINING_LABELS
-    encoded_y = keras.utils.np_utils.to_categorical(label, num_classes=NUM_CLASSES)  # make one-hot
+    encoded_y = keras.utils.np_utils.to_categorical(label, num_classes=Config.NUM_CLASSES)  # make one-hot
     encoded_y = np.reshape(encoded_y, (1, 2))
     TRAINING_LABELS = np.append(TRAINING_LABELS, encoded_y, axis=0)
     sample = sample.reshape(sample.shape[0], 1, row, col)
@@ -87,14 +82,14 @@ def train_model():
 
     model.fit(TRAINING_DATA,
               TRAINING_LABELS,
-              epochs=EPOCHS,
-              batch_size=BATCH_SIZE,
+              epochs=Config.EPOCHS,
+              batch_size=Config.BATCH_SIZE,
               class_weight={0: 1, 1: weight_ratio}
               )
     print("model trained")
     globals.HAS_BEEN_TRAINED = True
 
-    if LOAD_MODEL:
+    if Config.LOAD_MODEL:
         model.save('data/previous_model.h5')  # when trained save as the previous model
         print("saved model")
 

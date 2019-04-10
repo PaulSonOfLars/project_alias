@@ -4,12 +4,10 @@ from queue import Queue
 import numpy as np
 import pyaudio
 import pygame.mixer
-from python_speech_features import mfcc
-from python_speech_features import sigproc
+from python_speech_features import mfcc, sigproc
 
-from modules import connection
-from modules import globals
-from modules import led
+from config import Config
+from modules import connection, globals, led
 
 pygame.mixer.init()
 
@@ -32,7 +30,7 @@ q = Queue()
 def initialize():
     # TODO: Check if it _has_ to be sudo
     # IF yes, can we add user to audio group?
-    os.system('sudo amixer -c 1 sset Speaker 83')
+    os.system('sudo amixer -c 1 sset Speaker {}'.format(Config.VOLUME))
     return pyaudio.PyAudio().open(format=FORMAT,
                                   channels=CHANNELS,
                                   rate=RATE,

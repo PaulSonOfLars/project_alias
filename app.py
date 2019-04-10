@@ -3,6 +3,7 @@ import atexit
 import time
 from threading import Thread
 
+from config import Config
 from modules import ai
 from modules import connection
 from modules import globals
@@ -15,7 +16,13 @@ from modules import sound
 led.LED.off()
 # Initialize the sound objects
 noise = sound.AudioPlayer("data/noise.wav", -1, "noise", True)
-wakeup = sound.AudioPlayer("data/ok_google.wav", 0, "wakeup", False)
+if Config.ASSISTANT.lower() == "googlehome":
+    wakeup = sound.AudioPlayer("data/ok_google.wav", 0, "wakeup", False)
+elif Config.ASSISTANT.lower() == "alexa":
+    wakeup = sound.AudioPlayer("data/alexa.wav", 0, "wakeup", False)
+else:
+    print("invalid assistant selection")
+    exit(1)
 
 
 # Socket connection between client

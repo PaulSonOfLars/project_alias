@@ -107,13 +107,12 @@ Note: once trained there is no need to have the phone connected anymore.
 
 ## Calibration 
 
-- If you are using a **Amazon Alexa**, please change line 21 in **app.py** to: ```wakeup = sound.audioPlayer("data/alexa.wav",0,"wakeup", False)```
+- If you are using a **Amazon Alexa**, please change the `ASSISTANT` variable in `config.py` to `Alexa`.
 
-- To set the volume of the speaker you can change the line 32 in **modules/sound.py** ```os.system('sudo amixer -c 1 sset Speaker 83')``` 
+- To set the volume of the speaker you can change the volume in `config.py` to another value.
 
 ## TODO:
 
-- add a config file for calibration
 - remove requirement to use sudo -> run as own user
 - remove requirement for rc.local script -> use systemd
 
