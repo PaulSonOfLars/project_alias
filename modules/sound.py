@@ -27,18 +27,61 @@ silence_threshhold = 700
 q = Queue()
 
 
-def initialize():
-    # TODO: Check if it _has_ to be sudo
-    # IF yes, can we add user to audio group?
-    os.system('amixer -c 1 sset Speaker {}'.format(Config.VOLUME))
-    p = pyaudio.PyAudio()
-    return p, p.open(format=FORMAT,
-                     channels=CHANNELS,
-                     rate=RATE,
-                     output=False,
-                     input=True,
-                     frames_per_buffer=CHUNK_SAMPLES,
-                     stream_callback=audio_callback)
+class Sound:
+    def __init__(self, LED):
+        # TODO: Check if it _has_ to be sudo
+        # IF yes, can we add user to audio group?
+        os.system('amixer -c 1 sset Speaker {}'.format(Config.VOLUME))
+        self.audio = pyaudio.PyAudio()
+        self.stream = self.audio.open(format=FORMAT,
+                                      channels=CHANNELS,
+                                      rate=RATE,
+                                      output=False,
+                                      input=True,
+                                      frames_per_buffer=CHUNK_SAMPLES,
+                                      stream_callback=audio_callback)
+        self.LED = LED
+
+        # Initialize the sound objects
+        self.noise = AudioPlayer("data/noise.wav", -1, "noise", True, LED)
+        if Config.ASSISTANT.lower() == "googlehome":
+            self.wakeup = AudioPlayer("data/ok_google.wav", 0, "wakeup", False, LED)
+        elif Config.ASSISTANT.lower() == "alexa":
+            self.wakeup = AudioPlayer("data/alexa.wav", 0, "wakeup", False, LED)
+        else:
+            print("invalid assistant selection: {}".format(Config.ASSISTANT.lower()))
+            exit(1)
+
+    def start_stream(self):
+        self.stream.start_stream()
+
+    def stop_stream(self):
+        self.stream.stop_stream()
+
+    def play_noise(self):
+        self.noise.play()
+
+    def stop_noise(self):
+        self.noise.stop()
+
+    def play_wakeup(self):
+        self.wakeup.play()
+
+    def start(self):
+        self.stream.start_stream()
+        self.noise.play()
+
+    def stop(self):
+        self.stream.stop_stream()
+        self.noise.stop()
+
+    def is_active(self):
+        return self.stream.is_active()
+
+    def off(self):
+        self.stream.stop_stream()
+        self.stream.close()
+        self.audio.terminate()
 
 
 # Callback on mic input

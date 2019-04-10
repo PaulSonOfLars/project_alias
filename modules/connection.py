@@ -54,11 +54,10 @@ def index():
 
 
 class SocketNamespace(Namespace):
-    def __init__(self, namespace, classifier, stream, noise, LED):
+    def __init__(self, namespace, classifier, _sound, LED):
         super().__init__(namespace)
         self.classifier = classifier
-        self.stream = stream
-        self.noise = noise
+        self.sound = _sound
         self.LED = LED
 
     def on_connect(self):
@@ -102,12 +101,10 @@ class SocketNamespace(Namespace):
 
         # Toogle Alias on and off
         elif 'onoff' in msg:
-            if self.stream.is_active():
-                self.stream.stop_stream()
-                self.noise.stop()
+            if self.sound.is_active():
+                self.sound.pause()
             else:
-                self.stream.start_stream()
-                self.noise.play()
+                self.sound.play()
 
         # Receive is Button is pressed or released
         if 'btn_release' in msg:

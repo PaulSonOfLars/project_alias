@@ -12,20 +12,10 @@ from modules import ai, connection, globals, led, sound
 LED = led.Pixels()
 LED.off()
 
-# Initialize the sound objects
-noise = sound.AudioPlayer("data/noise.wav", -1, "noise", True, LED)
-if Config.ASSISTANT.lower() == "googlehome":
-    wakeup = sound.AudioPlayer("data/ok_google.wav", 0, "wakeup", False, LED)
-elif Config.ASSISTANT.lower() == "alexa":
-    wakeup = sound.AudioPlayer("data/alexa.wav", 0, "wakeup", False, LED)
-else:
-    print("invalid assistant selection")
-    exit(1)
-
 
 # Main thread
-def main_thread():
-    noise.play()  # Start noise
+def main_thread(sound: sound.Sound):
+    sound.start()  # Start noise
     connection.send_response()  # Send system info to client
 
     # variables to control timing between predictions
@@ -36,7 +26,7 @@ def main_thread():
     # ====================================================#
     try:
         while True:
-            while stream.is_active():
+            while sound.is_active():
                 time.sleep(0.01)
                 LED.off()
                 current_sec = time.time()
@@ -54,8 +44,7 @@ def main_thread():
                         print("GLOBAL RESULT: %d" % globals.RESULT)
 
                     if globals.RESULT == 1:
-                        noise.stop()
-                        wakeup.play()
+                        sound.play_wakeup()
                         globals.TRIGGERED = True
                         globals.PREDICT = False
                         prev_timer = current_sec
@@ -72,7 +61,7 @@ def main_thread():
 
                 if current_sec - prev_timer > interval:
                     if globals.TRIGGERED:
-                        noise.play()
+                        sound.play_noise()
                         print("start noise")
                         LED.off()
                         globals.TRIGGERED = False
@@ -86,12 +75,12 @@ def main_thread():
 # Setup
 # ====================================================#
 globals.initialize()
-audio, stream = sound.initialize()
-stream.start_stream()  # start stream
+sound = sound.Sound(LED)
+
 classifier = ai.Classifier()  # setup keras model
 
 # Setup and start main thread
-thread = Thread(target=main_thread)
+thread = Thread(target=lambda: main_thread(sound))
 thread.daemon = True
 thread.start()
 
@@ -103,15 +92,13 @@ print('')
 
 # Start socket io
 if __name__ == '__main__':
-    connection.socketio.on_namespace(connection.SocketNamespace("/socket", classifier, stream, noise, LED))
+    connection.socketio.on_namespace(connection.SocketNamespace("/socket", classifier, sound, LED))
     connection.socketio.run(connection.app, host=Config.HOST, port=Config.PORT, debug=False, log_output=False)
 
 
 def exit_handler():
     LED.off()
-    stream.stop_stream()
-    stream.close()
-    audio.terminate()
+    sound.off()
 
 
 atexit.register(exit_handler)
