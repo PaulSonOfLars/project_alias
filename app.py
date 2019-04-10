@@ -4,11 +4,7 @@ import time
 from threading import Thread
 
 from config import Config
-from modules import ai
-from modules import connection
-from modules import globals
-from modules import led
-from modules import sound
+from modules import ai, connection, globals, led, sound
 
 # Global inits
 # ====================================================
@@ -153,7 +149,7 @@ def main_thread():
 # Setup
 # ====================================================#
 globals.initialize()
-stream = sound.initialize()
+audio, stream = sound.initialize()
 stream.start_stream()  # start stream
 
 # Setup and start main thread
@@ -176,7 +172,7 @@ def exit_handler():
     led.LED.off()
     stream.stop_stream()
     stream.close()
-    sound.pyaudio.terminate()
+    audio.terminate()
 
 
 atexit.register(exit_handler)

@@ -31,13 +31,14 @@ def initialize():
     # TODO: Check if it _has_ to be sudo
     # IF yes, can we add user to audio group?
     os.system('sudo amixer -c 1 sset Speaker {}'.format(Config.VOLUME))
-    return pyaudio.PyAudio().open(format=FORMAT,
-                                  channels=CHANNELS,
-                                  rate=RATE,
-                                  output=False,
-                                  input=True,
-                                  frames_per_buffer=CHUNK_SAMPLES,
-                                  stream_callback=audio_callback)
+    p = pyaudio.PyAudio()
+    return p, p.open(format=FORMAT,
+                     channels=CHANNELS,
+                     rate=RATE,
+                     output=False,
+                     input=True,
+                     frames_per_buffer=CHUNK_SAMPLES,
+                     stream_callback=audio_callback)
 
 
 # Callback on mic input
