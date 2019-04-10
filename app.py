@@ -103,7 +103,7 @@ print('')
 
 # Start socket io
 if __name__ == '__main__':
-    connection.socketio.on_namespace(connection.SocketNamespace("/socket", classifier, stream, audio, LED))
+    connection.socketio.on_namespace(connection.SocketNamespace("/socket", classifier, stream, noise, LED))
     connection.socketio.run(connection.app, host=Config.HOST, port=Config.PORT, debug=False, log_output=False)
 
 
