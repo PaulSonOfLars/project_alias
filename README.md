@@ -113,8 +113,9 @@ Note: once trained there is no need to have the phone connected anymore.
 
 ## TODO:
 
-- remove requirement to use sudo -> run as own user
+- investigate if sudo is really necessary -> running as own user atm. (change in sound init function)
 - remove requirement for rc.local script -> use systemd
+- investigate potential weakness in "end of trigger" sentences; sometimes the word get constantly detected, even in silence.
 
 ## Get Involved!
 We are both Interaction Designers, Makers and strong believers in privacy but no experts when it comes to Speech Recognition software. If you are interested in getting involved in version 2.0 please let us know!

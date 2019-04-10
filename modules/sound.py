@@ -30,7 +30,7 @@ q = Queue()
 def initialize():
     # TODO: Check if it _has_ to be sudo
     # IF yes, can we add user to audio group?
-    os.system('sudo amixer -c 1 sset Speaker {}'.format(Config.VOLUME))
+    os.system('amixer -c 1 sset Speaker {}'.format(Config.VOLUME))
     p = pyaudio.PyAudio()
     return p, p.open(format=FORMAT,
                      channels=CHANNELS,
