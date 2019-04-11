@@ -7,7 +7,7 @@ import pygame.mixer
 from python_speech_features import mfcc, sigproc
 
 from config import Config
-from modules import connection, globals
+from modules import audio, connection, globals, led
 
 pygame.mixer.init()
 
@@ -30,11 +30,11 @@ class Sound:
     running_spectrogram = np.empty([0, 13], dtype='int16')
     finished_spectrogram = np.empty([0, 13], dtype='int16')
 
-    def __init__(self, LED):
+    def __init__(self, LED: led.Pixels):
         # TODO: Check if it _has_ to be sudo
         # IF yes, can we add user to audio group?
         os.system('amixer -c 1 sset Speaker {}'.format(Config.VOLUME))
-        self.audio = pyaudio.PyAudio()
+        self.audio = pyaudio.PyAudio()  # type: pyaudio.Pyaudio
         self.stream = self.audio.open(format=FORMAT,
                                       channels=CHANNELS,
                                       rate=RATE,
@@ -42,14 +42,14 @@ class Sound:
                                       input=True,
                                       frames_per_buffer=CHUNK_SAMPLES,
                                       stream_callback=audio_callback)
-        self.LED = LED
+        self.LED = LED  # type: led.Pixels
 
         # Initialize the sound objects
-        self.noise = AudioPlayer("data/noise.wav", -1, "noise", True, LED)
+        self.noise = AudioPlayer("data/noise.wav", -1, "noise", True, LED)  # type: audio.AudioPlayer
         if Config.ASSISTANT.lower() == "googlehome":
-            self.wakeup = AudioPlayer("data/ok_google.wav", 0, "wakeup", False, LED)
+            self.wakeup = AudioPlayer("data/ok_google.wav", 0, "wakeup", False, LED)  # type: audio.AudioPlayer
         elif Config.ASSISTANT.lower() == "alexa":
-            self.wakeup = AudioPlayer("data/alexa.wav", 0, "wakeup", False, LED)
+            self.wakeup = AudioPlayer("data/alexa.wav", 0, "wakeup", False, LED)  # type: audio.AudioPlayer
         else:
             print("invalid assistant selection: {}".format(Config.ASSISTANT.lower()))
             exit(1)
@@ -122,14 +122,14 @@ def audio_callback(in_data, frame_count, time_info, flag):
 # Audio player class
 # ====================================================#
 class AudioPlayer:
-    def __init__(self, filepath, loop, name, can_play, LED):
+    def __init__(self, filepath: str, loop: int, name: str, can_play: bool, LED: led.Pixels):
         super(AudioPlayer, self).__init__()
-        self.filepath = os.path.abspath(filepath)
-        self.loop = loop
-        self.name = name
-        self.canPlay = can_play
+        self.filepath = os.path.abspath(filepath)  # type: str
+        self.loop = loop  # type: int
+        self.name = name  # type: str
+        self.canPlay = can_play  # type: bool
         self.player = pygame.mixer.Sound(file=self.filepath)
-        self.LED = LED
+        self.LED = LED  # type: led.Pixels
 
     def check_if_playing(self):
         while pygame.mixer.get_busy():

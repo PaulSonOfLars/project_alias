@@ -58,7 +58,7 @@ class Classifier:
         print("- loaded example shape")
 
     # add examples to training dataset
-    def add_example(self, sample, label):
+    def add_example(self, sample: np.ndarray, label: int):
         encoded_y = keras.utils.np_utils.to_categorical(label, num_classes=Config.NUM_CLASSES)  # make one-hot
         encoded_y = np.reshape(encoded_y, (1, 2))
         self.training_labels = np.append(self.training_labels, encoded_y, axis=0)
@@ -99,7 +99,7 @@ class Classifier:
             np.save('data/background_sound_labels.npy', self.training_labels)
 
     # Predict incoming frames
-    def predict(self, sample):
+    def predict(self, sample: np.ndarray):
         print(sample.shape)
         sample = np.expand_dims(sample, axis=0)
         prediction = self.model.predict(sample)

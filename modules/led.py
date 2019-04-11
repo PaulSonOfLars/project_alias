@@ -5,7 +5,7 @@ class Pixels:
     PIXELS_N = 3
 
     def __init__(self):
-        self.dev = apa102.APA102(num_led=self.PIXELS_N)
+        self.dev = apa102.APA102(num_led=self.PIXELS_N)  # type: apa102.APA102
 
     def on(self):
         for i in range(self.PIXELS_N):

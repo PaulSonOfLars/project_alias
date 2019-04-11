@@ -5,7 +5,7 @@ from threading import Thread
 from flask import Flask, render_template
 from flask_socketio import Namespace, SocketIO
 
-from modules import globals
+from modules import ai, audio, globals, led
 
 # Socket I/O
 # ====================================================#
@@ -54,11 +54,11 @@ def index():
 
 
 class SocketNamespace(Namespace):
-    def __init__(self, namespace, classifier, sound, LED):
+    def __init__(self, namespace: str, classifier: ai.Classifier, sound: audio.Sound, LED: led.Pixels):
         super().__init__(namespace)
-        self.classifier = classifier
-        self.sound = sound
-        self.LED = LED
+        self.classifier = classifier  # type: ai.Classifier
+        self.sound = sound  # type: audio.Sound
+        self.LED = LED  # type: led.Pixels
 
     def on_connect(self):
         pass
@@ -102,9 +102,9 @@ class SocketNamespace(Namespace):
         # Toogle Alias on and off
         elif 'onoff' in msg:
             if self.sound.is_active():
-                self.sound.pause()
+                self.sound.start()
             else:
-                self.sound.play()
+                self.sound.stop()
 
         # Receive is Button is pressed or released
         if 'btn_release' in msg:
