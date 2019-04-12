@@ -14,3 +14,5 @@ class Config:
     # server stuff
     PORT = 5050
     HOST = '0.0.0.0'
+
+    UPDATE_BG_DATA = False  # Set true to record new examples to background data set

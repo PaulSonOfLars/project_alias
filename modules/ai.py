@@ -20,6 +20,8 @@ class Classifier:
     training_labels = np.empty([0, Config.NUM_CLASSES])  # YS Label array
 
     def __init__(self):
+        # Change to True if wake word is trained in the loaded model
+        globals.HAS_BEEN_TRAINED = False
         self.load_BG_examples()
 
         if not Config.LOAD_MODEL:
@@ -37,12 +39,9 @@ class Classifier:
             self.model.add(Dense(units=Config.NUM_CLASSES, activation='sigmoid'))
             self.model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
 
-            globals.HAS_BEEN_TRAINED = False
-
         else:
             self.model = load_model('data/previous_model.h5')  # load the last model saved to continue.
             print("just loaded model")
-            globals.HAS_BEEN_TRAINED = False  # Change to True if wake word is trained in the loaded model
 
     # Load or reset training examples for class 0 (background sounds)
     def load_BG_examples(self):
@@ -66,8 +65,7 @@ class Classifier:
         self.training_data = np.append(self.training_data, sample, axis=0)
         print('add example for label %d' % label)
 
-        if globals.HAS_BEEN_TRAINED:
-            globals.HAS_BEEN_TRAINED = False
+        globals.HAS_BEEN_TRAINED = False
 
     # Train the model on recorded examples
     def train_model(self):
@@ -91,7 +89,7 @@ class Classifier:
             print("saved model")
 
         # When true the background data set can be updated
-        if globals.UPDATE_BG_DATA:
+        if Config.UPDATE_BG_DATA:
             print(self.training_data.shape)
             self.model.save("data/neutral_model.h5")
             self.model.save("data/previous_model.h5")

@@ -59,6 +59,7 @@ class SocketNamespace(Namespace):
         self.classifier = classifier  # type: ai.Classifier
         self.sound = sound  # type: audio.Sound
         self.LED = LED  # type: led.Pixels
+        self.button_pressed = False
 
     def on_connect(self):
         pass
@@ -81,7 +82,7 @@ class SocketNamespace(Namespace):
             self.LED.listen()
 
         # Add example to class 1 - WakeWord
-        elif 'class1' in msg and globals.EXAMPLE_READY and not globals.UPDATE_BG_DATA:
+        elif 'class1' in msg and globals.EXAMPLE_READY and not Config.UPDATE_BG_DATA:
             example = self.sound.get_spectrogram()
             self.classifier.add_example(example, 1)
             globals.TR_EXAMPLES += 1
@@ -109,12 +110,12 @@ class SocketNamespace(Namespace):
         # Receive is Button is pressed or released
         if 'btn_release' in msg:
             print("released")
-            globals.BUTTON_PRESSED = False
+            self.button_pressed = False
         elif 'class1' in msg or 'class0' in msg:
-            globals.BUTTON_PRESSED = True
+            self.button_pressed = True
 
         # Check if system is ready to predict
-        if globals.TRAIN or globals.RESET or globals.BUTTON_PRESSED or globals.TRIGGERED:
+        if globals.TRAIN or globals.RESET or self.button_pressed or globals.TRIGGERED:
             globals.PREDICT = False
         else:
             globals.PREDICT = True

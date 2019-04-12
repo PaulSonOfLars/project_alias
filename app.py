@@ -26,14 +26,15 @@ def main_thread(sound: audio.Sound):
                 current_sec = time.time()
 
                 # If the mic is triggered an spectogram is not done, make a row more.
-                if globals.MIC_TRIGGER and not globals.EXAMPLE_READY:
+                if sound.mic_trigger and not globals.EXAMPLE_READY:
                     sound.make_spectrogram()
 
                 if globals.PREDICT and globals.EXAMPLE_READY and not globals.TRAIN and not globals.RESET:
                     sample = sound.get_spectrogram()
                     print("get spectogram")
                     print(globals.EXAMPLE_READY)
-                    if globals.HAS_BEEN_TRAINED:  # if model has been trained then predict
+
+                    if classifier.is_trained:  # if model has been trained then predict
                         globals.RESULT = classifier.predict(sample).item()
                         print("GLOBAL RESULT: %d" % globals.RESULT)
 
@@ -77,7 +78,6 @@ if __name__ == '__main__':
     # init and setup RPI LEDs
     LED = led.Pixels()
     LED.off()
-    globals.initialize()
     sound = audio.Sound(LED)
 
     classifier = ai.Classifier()  # setup keras model
@@ -94,6 +94,7 @@ if __name__ == '__main__':
     print('')
 
     # Start socket io
-    connection.socketio.on_namespace(connection.SocketNamespace("/socket", classifier, sound, LED))
+    namespace = connection.SocketNamespace("/socket", classifier, sound, LED)
+    connection.socketio.on_namespace(namespace)
     connection.socketio.run(connection.app, host=Config.HOST, port=Config.PORT, debug=False, log_output=False)
     atexit.register(exit_handler)

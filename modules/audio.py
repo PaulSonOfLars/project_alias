@@ -41,8 +41,9 @@ class Sound:
                                       output=False,
                                       input=True,
                                       frames_per_buffer=CHUNK_SAMPLES,
-                                      stream_callback=audio_callback)
+                                      stream_callback=self.audio_callback)
         self.LED = LED  # type: led.Pixels
+        self.mic_trigger = False
 
         # Initialize the sound objects
         self.noise = AudioPlayer("data/noise.wav", -1, "noise", True, LED)  # type: audio.AudioPlayer
@@ -101,22 +102,21 @@ class Sound:
             self.finished_spectrogram = self.running_spectrogram
             self.running_spectrogram = np.empty([0, 13], dtype='int16')
             globals.EXAMPLE_READY = True
-            globals.MIC_TRIGGER = False
+            self.mic_trigger = False
 
     def get_spectrogram(self):
         self.finished_spectrogram = np.expand_dims(self.finished_spectrogram, axis=0)
         globals.EXAMPLE_READY = False
         return self.finished_spectrogram
 
-
-# Callback on mic input
-def audio_callback(in_data, frame_count, time_info, flag):
-    audio_data = np.frombuffer(in_data, dtype='int16')
-    if np.abs(audio_data).mean() > silence_threshhold and not globals.MIC_TRIGGER:
-        globals.MIC_TRIGGER = True
-    if globals.MIC_TRIGGER:
-        q.put(audio_data)
-    return in_data, pyaudio.paContinue
+    # Callback on mic input
+    def audio_callback(self, in_data, frame_count, time_info, flag):
+        audio_data = np.frombuffer(in_data, dtype='int16')
+        if np.abs(audio_data).mean() > silence_threshhold and not self.mic_trigger:
+            self.mic_trigger = True
+        if self.mic_trigger:
+            q.put(audio_data)
+        return in_data, pyaudio.paContinue
 
 
 # Audio player class
