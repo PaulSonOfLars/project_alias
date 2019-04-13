@@ -5,6 +5,7 @@ from threading import Thread
 from flask import Flask, render_template
 from flask_socketio import Namespace, SocketIO
 
+from config import Config
 from modules import ai, audio, globals, led
 
 # Socket I/O
@@ -54,7 +55,7 @@ def index():
 
 
 class SocketNamespace(Namespace):
-    def __init__(self, namespace: str, classifier: ai.Classifier, sound: audio.Sound, LED: led.Pixels):
+    def __init__(self, namespace: str, classifier: ai.Classifier, sound, LED: led.Pixels):
         super().__init__(namespace)
         self.classifier = classifier  # type: ai.Classifier
         self.sound = sound  # type: audio.Sound

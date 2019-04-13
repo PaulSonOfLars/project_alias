@@ -34,7 +34,7 @@ def main_thread(sound: audio.Sound):
                     print("get spectogram")
                     print(globals.EXAMPLE_READY)
 
-                    if classifier.is_trained:  # if model has been trained then predict
+                    if globals.HAS_BEEN_TRAINED:  # if model has been trained then predict
                         globals.RESULT = classifier.predict(sample).item()
                         print("GLOBAL RESULT: %d" % globals.RESULT)
 

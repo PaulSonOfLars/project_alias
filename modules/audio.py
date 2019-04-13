@@ -7,7 +7,7 @@ import pygame.mixer
 from python_speech_features import mfcc, sigproc
 
 from config import Config
-from modules import audio, connection, globals, led
+from modules import connection, globals, led
 
 pygame.mixer.init()
 
