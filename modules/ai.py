@@ -1,5 +1,6 @@
 import keras
 import numpy as np
+import tensorflow as tf
 from keras import backend as K
 from keras.layers import Dense, Dropout, Flatten
 from keras.layers.convolutional import Conv2D, MaxPooling2D
@@ -23,6 +24,7 @@ class Classifier:
         # Change to True if wake word is trained in the loaded model
         globals.HAS_BEEN_TRAINED = False
         self.load_BG_examples()
+        self.graph = tf.get_default_graph()
 
         if not Config.LOAD_MODEL:
             self.model = Sequential()
@@ -41,6 +43,8 @@ class Classifier:
 
         else:
             self.model = load_model('data/previous_model.h5')  # load the last model saved to continue.
+            self.model._make_predict_function()
+            self.graph = tf.get_default_graph()
             print("just loaded model")
 
     # Load or reset training examples for class 0 (background sounds)
@@ -100,7 +104,8 @@ class Classifier:
     def predict(self, sample: np.ndarray):
         print(sample.shape)
         sample = np.expand_dims(sample, axis=0)
-        prediction = self.model.predict(sample)
+        with self.graph.as_default():
+            prediction = self.model.predict(sample)
         return np.argmax(prediction)
 
     # Reset the current model to the neutral with no wake-word trained yet.
@@ -109,5 +114,6 @@ class Classifier:
         K.clear_session()
         self.model = load_model('data/neutral_model.h5')
         self.model._make_predict_function()
+        self.graph = tf.get_default_graph()
         print("LOADED MODEL")
         globals.HAS_BEEN_TRAINED = False
